@@ -1,53 +1,132 @@
 # coding: utf-8
 # license: GPLv3
-from enemies import *
-from hero import *
+from gameunit import *
+from random import randint, choice
 
-def annoying_input_int(message =''):
-    answer = None
-    while answer == None:
-        try:
-            answer = int(input(message))
-        except ValueError:
-            print('Вы ввели недопустимые символы')
-    return answer
+class Enemy(Attacker):
+    pass
 
 
-def game_tournament(hero, dragon_list):
-    for dragon in dragon_list:
-        print('Вышел', dragon._color, 'дракон!')
-        while dragon.is_alive() and hero.is_alive():
-            print('Вопрос:', dragon.question())
-            answer = annoying_input_int('Ответ:')
+def generate_random_enemy():
+    RandomEnemyType = choice(enemy_types)
+    enemy = RandomEnemyType()
+    return enemy
 
-            if dragon.check_answer(answer):
-                hero.attack(dragon)
-                print('Верно! \n** дракон кричит от боли **')
+
+def generate_dragon_list(enemy_number):
+    enemy_list = [generate_random_enemy() for i in range(enemy_number)]
+    return enemy_list
+
+
+class Dragon(Enemy):
+    def set_answer(self, answer):
+        self.__answer = answer
+
+    def check_answer(self, answer):
+        return answer == self.__answer
+
+
+class GreenDragon(Dragon):
+    def __init__(self):
+        self._health = 200
+        self._attack = 10
+        self._color = 'зелёный'
+
+    def question(self):
+        x = randint(1,100)
+        y = randint(1,100)
+        self.__quest = str(x) + '+' + str(y)
+        self.set_answer(x + y)
+        return self.__quest
+
+class RedDragon(Dragon):
+    def __init__(self):
+        self._health = 200
+        self._attack = 10
+        self._color = 'красный'
+
+    def question(self):
+        x = randint(1,100)
+        y = randint(1,100)
+        self.__quest = str(x) + '-' + str(y)
+        self.set_answer(x - y)
+        return self.__quest
+
+class BlackDragon(Dragon):
+    def __init__(self):
+        self._health = 200
+        self._attack = 10
+        self._color = 'чёрный'
+
+    def question(self):
+        x = randint(1,100)
+        y = randint(1,10)
+        self.__quest = str(x) + '*' + str(y)
+        self.set_answer(x * y)
+        return self.__quest
+
+class Troll(Enemy):
+    def set_answer(self, answer):
+        self.__answer = answer
+
+    def check_answer(self, answer):
+        return answer == self.__answer
+
+'''class U_troll(Troll):
+    def __init__(self):
+        self._health = 50
+        self._attack = 10
+        self._type='U'
+
+    def question(self):
+        x = randint(1,5)
+        self.__quest = 'x in range(5) = ?'
+        self.set_answer(x)
+        return self.__quest
+
+class P_troll(Troll):
+    def __init__(self):
+        self._health = 200
+        self._attack = 10
+        self._type='P'
+
+    def question(self):
+        x = randint(1,100)
+        self.__quest = str(x)
+        Q=0
+        if x>1:
+            for i in range(2,x,1):
+                if x%i==0:
+                    Q=1
+                    break
+        self.set_answer(Q)
+        return self.__quest'''
+
+class M_troll(Troll):
+    def __init__(self):
+        self._health = 200
+        self._attack = 10
+        self._type='M'
+
+    def question(self):
+        x = randint(1,50)
+        self.__quest = str(x)
+        C=[]
+        i=2
+        x=int(input())
+        while i<=x:
+            if x%i==0:
+                C=C+[i]
+                x=x/i
+                i=2
             else:
-                dragon.attack(hero)
-                print('Ошибка! \n** вам нанесён удар... **')
-        if dragon.is_alive():
-            break
-        print('Дракон', dragon._color, 'повержен!\n')
+                i+=1
+        S=''
+        for i in range(len(C)):
+            S=S+str(C[i])
+        R=int(S)
+        self.set_answer(R)
+        return self.__quest
 
-    if hero.is_alive():
-        print('Поздравляем! Вы победили!')
-        print('Ваш накопленный опыт:', hero._experience)
-    else:
-        print('К сожалению, Вы проиграли...')
-
-def start_game():
-
-    try:
-        print('Добро пожаловать в арифметико-ролевую игру с драконами!')
-        print('Представьтесь, пожалуйста: ', end = '')
-        hero = Hero(input())
-
-        dragon_number = 3
-        dragon_list = generate_dragon_list(dragon_number)
-        assert(len(dragon_list) == 3)
-        print('У Вас на пути', dragon_number, 'драконов!')
-        game_tournament(hero, dragon_list)
-
-    except EOFError:
-        print('Поток ввода закончился. Извините, принимать ответы более невозможно.')
+#enemy_types = [GreenDragon, RedDragon, BlackDragon]
+enemy_types = [M_troll]
